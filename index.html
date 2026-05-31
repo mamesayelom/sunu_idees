@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <title>Document</title>
+
+    <style>
+
+        .active-categorie{
+            background-color:#5b3fde !important;
+            color:white !important;
+        }
+        .colorText{
+            color: #555;
+        }
+
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar-custom d-flex align-items-center justify-content-between px-5 py-4">
+ 
+        <!-- Logo + titre -->
+        <div class="d-flex align-items-center gap-2 ">
+            <div style="width:36px; height:36px; background:#5b3fde; border-radius:50%; display:flex; align-items:center; justify-content:center;">
+                <span style="color:white; font-size:1rem;">💡</span>
+            </div>
+            <div>
+                <div class="navbar-brand-text">Sunu-Idées</div>
+            </div>
+        </div>
+    
+        <!-- Badge "idées publiées" -->
+         <div style="padding: 10px; background-color: rgba(91, 63, 222,0.2); border-radius: 20px;"><span id="totalIdees" class="badge-published"></span></div>
+
+    </nav>
+
+    <div class="d-flex justify-content-between p-5 bg-light">
+ 
+        <!-- ── PANNEAU GAUCHE ── -->
+        <aside class="sidebar" style="width: 25%;">
+
+            <!-- === FORMULAIRE : Publier une idée === -->
+            <form class="mb-4 bg-white p-4">
+        
+                <!-- Titre de la section -->
+                <div class="d-flex align-items-center gap-2 fw-bold mb-3" style="color:#333; font-size:0.95rem;">
+                    <span  class="d-flex justify-content-center align-items-center" style="height: 25x; width: 25px; border-radius: 100%; background:#5b3fde; color: white;">+</span>
+                    <span>Publier une idée</span>
+                </div>
+        
+                <!-- Champ : Titre de l'idée -->
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold" style="color:#555;">
+                        TITRE DE L'IDÉE <span style="color:red;">*</span>
+                    </label>
+                    <input
+                        id="titre"
+                        type="text"
+                        class="form-control form-control-sm"
+                        placeholder="Ex: Système de ..."
+                    />
+                </div>
+
+                <!-- Champ : Catégorie -->
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold" style="color:#555;">
+                        CATÉGORIE
+                    </label>
+                    <select id="categorie" class="form-select form-select-sm">
+                        <option>Innovation</option>
+                        <option>Amélioration</option>
+                        <option>Problème</option>
+                        <option>Projet</option>
+                        <option>Feedback</option>
+                        <option>Autre</option>
+                    </select>
+                </div>
+
+                <!-- Champ : Description -->
+                <div class="mb-3">
+                    <label class="form-label small fw-semibold" style="color:#555;">
+                        DESCRIPTION <span style="color:red;">*</span>
+                    </label>
+                    <textarea
+                        id="description"
+                        class="form-control form-control-sm"
+                        rows="4"
+                        placeholder="Décrivez votre idée en détail..."
+                    ></textarea>
+                </div>
+            
+                <!-- Bouton publier -->
+                <button type="submit" class="btn btn-sm w-100" style="background-color:#5b3fde; color:white; border-radius:20px;">
+                    Publier l'idée
+                </button>
+            
+            </form>
+
+            <!-- === CATÉGORIES === -->
+            <div class="bg-white p-4 mt-5">
+        
+                <!-- Titre de la section -->
+                <p class="fw-bold mb-3" style="color:#333; font-size:0.95rem;">
+                    Catégories
+                </p>
+        
+                <!-- Liste des catégories -->
+                <ul class="list-unstyled" style="font-size:0.85rem;">
+            
+                    <!-- Toutes -->
+                    <li data-category="Toutes" class="active-categorie colorText categorie-item d-flex justify-content-between align-items-center px-2 py-1 rounded mb-1"
+                        style="cursor:pointer;">
+                        <span>Toutes</span>
+                        <span id="count-all" class="badge bg-light text-dark"></span>
+                    </li>
+            
+                    <!-- Innovation -->
+                    <li data-category="Innovation" class="categorie-item colorText d-flex justify-content-between align-items-center px-2 py-1 rounded mb-1"
+                        style="cursor:pointer;">
+                        <span>🔵 Innovation</span>
+                        <span id="count-innovation" class="badge bg-light text-dark"></span>
+                    </li>
+            
+                    <!-- Amélioration -->
+                    <li data-category="Amélioration" class="categorie-item colorText d-flex justify-content-between align-items-center px-2 py-1 rounded mb-1"
+                        style="cursor:pointer;">
+                        <span>🟢 Amélioration</span>
+                        <span id="count-amelioration" class="badge bg-light text-dark"></span>
+                    </li>
+            
+                    <!-- Problème -->
+                    <li data-category="Problème" class="categorie-item colorText d-flex justify-content-between align-items-center px-2 py-1 rounded mb-1"
+                        style="cursor:pointer;">
+                        <span>🔴 Problème</span>
+                        <span id="count-probleme" class="badge bg-light text-dark"></span>
+                    </li>
+            
+                    <!-- Projet -->
+                    <li data-category="Projet" class="categorie-item colorText d-flex justify-content-between align-items-center px-2 py-1 rounded mb-1"
+                        style="cursor:pointer;">
+                        <span>🟡 Projet</span>
+                        <span id="count-projet" class="badge bg-light text-dark"></span>
+                    </li>
+            
+                    <!-- Feedback -->
+                    <li data-category="Feedback" class="categorie-item colorText d-flex justify-content-between align-items-center px-2 py-1 rounded mb-1"
+                        style="cursor:pointer;">
+                        <span>🟣 Feedback</span>
+                        <span id="count-feedback" class="badge bg-light text-dark"></span>
+                    </li>
+            
+                    <!-- Autre -->
+                    <li data-category="Autre" class="categorie-item colorText d-flex justify-content-between align-items-center px-2 py-1 rounded mb-1"
+                        style="cursor:pointer;">
+                        <span>⚪ Autre</span>
+                        <span id="count-autre"  class="badge bg-light text-dark"></span>
+                    </li>
+            
+                </ul>
+            </div>
+
+        </aside>
+    
+        <!-- ── ZONE DES CARTES ── -->
+        <main style="width: 72%;">
+
+            <!-- === BARRE DE RECHERCHE === -->
+            <div class="position-relative d-flex align-items-center justify-content-between mb-4">
+                <!--<span class="small text-muted" style="position:absolute; left:10px; top:5px;"><i class="bi bi-search"></i> Rechercher une idée...</span>-->
+                <input
+                id="searchInput"
+                type="text"
+                class="form-control form-control-sm me-3"
+                placeholder="🔍 Rechercher une idée..."
+                style="border-radius:20px; border-color:#d0cbf5; max-width:100%;"
+                />
+            </div>
+        
+            <!-- === GRILLE DES CARTES (2 colonnes) === -->
+            <div class="row g-3">
+            </div>
+
+
+        </main>
+ 
+    </div>
+
+    <footer class="text-center py-3 border-top">
+        <small class="text-muted">
+            &copy; 2026 Sunu-Idées
+        </small>
+    </footer>
+
+
+
+    <script type="module" src="app.js"></script>
+
+</body>
+</html>
