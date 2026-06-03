@@ -1,3 +1,4 @@
+const OPENROUTER_API_KEY = "";
 const couleurs = {
 
     "Amélioration": {
@@ -31,6 +32,7 @@ const couleurs = {
     }
 
 };
+const loader = document.getElementById("loader");
 // On récupère le conteneur des cartes
 const container = document.querySelector(".row.g-3");
 //récupérer les anciennes données
@@ -133,6 +135,7 @@ function afficherIdees(search = "") {
 
         //récupérer la couleur de la categorie
         const couleur = couleurs[idee.categorie];
+        
         const col = document.createElement("div");
         //classList représente la liste des classes CSS d’un élément.
         col.classList.add("col-6");
@@ -167,57 +170,68 @@ function afficherIdees(search = "") {
 }
 
 // Quand on clique sur publier; "submit" est l’événement envoyé quand un formulaire est soumis.
-document.querySelector("form").addEventListener("submit", function (e) {
+document.querySelector("form").addEventListener("submit", async function(e) {
     //Empêche le comportement normal du formulaire comme: l'envoie automatique des données du formulaire et le rechargement de la page
     e.preventDefault();
+    try{
+        loader.style.display = "block";
+        // Récupérer les valeurs du formulaire
+        const titre = document.querySelector("#titre").value;
+        //const categorie = document.querySelector("#categorie").value;
+        const description = document.querySelector("#description").value;
+        const date = new Date().toLocaleDateString("fr-FR");
 
-    // Récupérer les valeurs du formulaire
-    const titre = document.querySelector("#titre").value;
-    const categorie = document.querySelector("#categorie").value;
-    const description = document.querySelector("#description").value;
-    const date = new Date().toLocaleDateString("fr-FR");
+        const categorie = await detectCategory(titre, description);
+        console.log("Catégorie reçue :", categorie);
+    
 
-    //MODIFICATION
-    if (ideeEnModification !== null) {
+        //MODIFICATION
+        if (ideeEnModification !== null) {
 
-        idees = idees.map(idee => {
+            idees = idees.map(idee => {
 
-            if (idee.id === ideeEnModification) {
-                return {
-                    ...idee,
-                    titre,
-                    categorie,
-                    description
-                };
-            }
+                if (idee.id === ideeEnModification) {
+                    return {
+                        ...idee,
+                        titre,
+                        categorie,
+                        description
+                    };
+                }
 
-            return idee;
-        });
+                return idee;
+            });
 
-        ideeEnModification = null; // reset
+            ideeEnModification = null; // reset
 
-    }else{
+        }else{
 
-        const nouvelleIdee = {
-            id: Date.now(),
-            titre,
-            description,
-            categorie,
-            date
-        };
+            const nouvelleIdee = {
+                id: Date.now(),
+                titre,
+                description,
+                categorie,
+                date
+            };
 
-        idees.push(nouvelleIdee);
+            idees.push(nouvelleIdee);
+            localStorage.setItem("idees", JSON.stringify(idees));
+
+            // optionnel: reset formulaire
+            document.querySelector("form").reset();
+        }
+
+    }catch (error) {
+        console.log(error);
+        alert("Erreur lors de la classification de l'idée.");
+    } finally {
+        loader.style.display = "none";
     }
 
-        localStorage.setItem("idees", JSON.stringify(idees));
-
-        // optionnel: reset formulaire
-        document.querySelector("form").reset();
-
-        // optionnel: rafraîchir affichage
-        afficherIdees(searchInput.value);
-        updateCategoriesUI();
-        countIdee();
+    // optionnel: rafraîchir affichage
+    afficherIdees(searchInput.value);
+    updateCategoriesUI();
+    countIdee();
   
 });
 
@@ -242,4 +256,80 @@ window.supprimerIdee = function(id){
         updateCategoriesUI()
         countIdee()
     }
+}
+
+async function detectCategory(title, description) {
+const prompt = `
+Tu es un système de classification STRICT.
+
+Tu dois choisir UNE SEULE catégorie parmi cette liste EXACTE :
+
+- Amélioration
+- Problème
+- Innovation
+- Feedback
+- Projet
+- Autre
+
+RÈGLES ABSOLUES :
+- Réponds uniquement par UN seul mot ou expression EXACTE de la liste ci-dessus
+- Respecte les majuscules et accents exactement comme écrits
+- Interdiction totale d’ajouter du texte
+- Interdiction d’expliquer
+- Interdiction de ponctuation
+- Interdiction de variation (ex: "probleme", "Problèmes", etc. sont interdits)
+
+EXEMPLES :
+
+Titre: Application lente
+Réponse: Problème
+
+Titre: Nouvelle fonctionnalité IA
+Réponse: Innovation
+
+Titre: Correction bug interface
+Réponse: Amélioration
+
+---
+
+Maintenant classe cette idée :
+
+Titre : ${title}
+Description : ${description}
+
+Réponse :
+`;
+
+  const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "nvidia/nemotron-3-super-120b-a12b:free",
+      messages: [
+        {
+            role: "user",
+            content: prompt
+        }
+    ],
+    "reasoning": {"enabled": true}
+    }),
+  });
+
+  console.log(response);
+  
+
+  const data = await response.json();
+
+    console.log(data);
+
+    const category = data.choices[0].message.content;
+
+    return category
+
+
+
+
 }
